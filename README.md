@@ -4,20 +4,23 @@ author: "[Frank Jung](https://www.linkedin.com/in/frankjung/)"
 date: 2026-02-03
 ---
 
+![](images/banner.png)
+
 For the modern developer, the desire to share technical insights is often
 hindered by the "toil" of the publishing process. We live in our code editors
-and terminal sessions, yet sharing those insights on platforms like Blogger
-(Blogspot) traditionally requires a regression to manual labour: copy-pasting
-HTML, wrestling with web-based WYSIWYG editors, and manually managing assets.
-This cognitive load creates a significant barrier to entry, often resulting in
-stale repositories and abandoned drafts.
+and terminal sessions, yet sharing those insights on platforms like
+[Blogger](https://www.blogger.com/) traditionally requires a regression to
+manual labour: copy-pasting HTML, wrestling with web-based WYSIWYG editors, and
+manually managing assets. This discourages regular contribution, often resulting
+in stale repositories and abandoned drafts.
 
-It is time to eliminate this friction. By adopting a "Blogging as Code"
-manifesto, you can transform your workflow into a seamless, automated CI/CD
-pipeline. By leveraging the Blogger REST API v3 and GitHub Actions, you can
-treat your blog with the same engineering rigor as your production software.
+By adopting a "Blogging as Code" approach, you can replace manual copy-pasting
+with automated CI/CD pipeline management. By leveraging the
+[Blogger REST API v3](https://developers.google.com/blogger/docs/3.0/reference/posts)
+and [GitHub Actions](https://github.com/features/actions), you can treat your
+blog with the same engineering rigour as your production software.
 
-## 1. The API is Your Most Powerful Ally
+## 1. The API as Your Deployment Interface
 
 The core shift in this methodology is viewing Blogger not as a website, but as a
 deployment target. The Blogger REST API v3 allows developers to bypass the
@@ -36,8 +39,15 @@ advantages for the DevOps-minded writer:
 ## 2. Security Starts in the Google Cloud Console
 
 Automation requires a bridge of trust between GitHub and Google. This is
-established in the Google Cloud Console by enabling OAuth 2.0. To begin, you
-must explicitly search for and enable the Blogger API within your project.
+established in the Google Cloud Console by enabling OAuth 2.0. Setting up OAuth
+2.0 involves a one-time configuration investment that yields long-term
+efficiency gains.
+
+For a detailed guide on setting up OAuth 2.0 and generating your refresh token
+see
+[Google Blogger API Authentication Setup](https://github.com/frankhjung/blogspot-publishing/blob/main/docs/authentication_setup.md).
+
+You must explicitly search for and enable the Blogger API within your project.
 
 Once the API is active, you will generate two critical credentials:
 
@@ -45,8 +55,8 @@ Once the API is active, you will generate two critical credentials:
 2. `CLIENT_SECRET`
 
 These are not just identifiers; they are the foundation used to generate a
-REFRESH_TOKEN. Because GitHub Actions run in a non-interactive environment, this
-refresh token is the key to secure, long-term authentication, allowing the
+`REFRESH_TOKEN`. Because GitHub Actions run in a non-interactive environment,
+this refresh token is the key to secure, long-term authentication, allowing the
 workflow to request fresh access tokens without manual intervention or the
 storage of your primary account password.
 
@@ -54,7 +64,7 @@ storage of your primary account password.
 
 To route your content correctly, the pipeline must identify your specific
 destination. This is handled by your `BLOG_ID`. Together, these parameters form
-the "Big Four" authentication and identification components required for your
+the mandatory authentication and identification components required for your
 pipeline.
 
 | Parameter | Description |
@@ -64,16 +74,16 @@ pipeline.
 | `REFRESH_TOKEN` | The secure token that allows for long-term, non-interactive API access. |
 | `BLOG_ID` | The unique identifier for your specific destination blog. |
 
-**[!WARNING]** Security Best Practice: It is essential that these four
-values are stored as GitHub Secrets. Hardcoding these credentials in your YAML
-or repository exposes your Google account to the public. By using GitHub
-Secrets, they are encrypted and injected into the runner environment only during
+**[!WARNING]** Security best practice: It is essential that these four values
+are stored as GitHub Secrets. Hardcoding these credentials in your YAML or
+repository exposes your Google account to the public. By using GitHub Secrets,
+they are encrypted and injected into the runner environment only during
 execution.
 
 ## 4. The Anatomy of an Automated Post
 
 The heavy lifting of the API interaction is managed by the
-frankhjung/blogspot-publishing@main GitHub Action. This utility expects a
+`frankhjung/blogspot-publishing@v1` GitHub Action. This utility expects a
 specific set of inputs to govern how your content is delivered:
 
 * `title`: The headline of your post.
@@ -91,31 +101,36 @@ the final deployment artifact.
 
 ## 5. Updates Without the Duplication Headache
 
-One of the most elegant features of this automated approach is Idempotency. In a
-traditional manual workflow, fixing a typo means hunting through a dashboard. In
-a naive automated system, re-running a pipeline would simply create a duplicate
-post.
+A key feature of this automated approach is idempotency. In a traditional manual
+workflow, fixing a typo means hunting through a dashboard. In an automated
+system without idempotency, re-running a pipeline would simply create a
+duplicate post.
 
 The blogspot-publishing utility avoids this by using the post title as a unique
-identifier. As the source material confirms:
+identifier. If a post with the same title already exists, it updates the
+existing post (content only) instead of creating a duplicate. Include the title
+as an environment variable in your GitHub pipeline. If you change the title,
+then a new post will be created.
 
-"If a post with the same title already exists, it updates the existing post
-(content only) instead of creating a duplicate."
+This supports a truly iterative writing process: push to `main`, and the Action
+will find the existing post and update its content.
 
-This supports a truly iterative writing process. Correct a technical error in
-your repository, push to main, and the Action will find the existing post and
-update its content. Note: Because the title is the identifier, changing the
-title in your source file will result in a new post being created. Additionally,
-to provide a final safety check, all new posts are created as drafts by default,
-giving you one last opportunity for a manual preview before going live.
+**Note:**
+
+Because the title is the identifier, changing the title in your source file will
+result in a new post being created. Additionally, to provide a final safety
+check, all new posts are created as drafts by default, giving one last
+opportunity for a manual preview before going live.
 
 ## 6. Bringing It All Together in YAML
 
-To see this in practice, consider a repository like article-base-rate, which
-uses complex data visualisations. The content is written in R Markdown (.Rmd),
+### A Concrete Example: R Markdown with Data Visualisations
+
+To see this in practice, consider the article-base-rate repository. This uses
+complex data visualisations. The content is written in R Markdown (.Rmd),
 requiring R (version 4.0+) and a Makefile to render the final HTML.
 
-Your .github/workflows/publish.yml integrates the build and deployment stages
+The `.github/workflows/publish.yml` integrates the build and deployment stages
 into a single, cohesive CI/CD pipeline:
 
 ```yaml
@@ -142,7 +157,7 @@ jobs:
           make base-rate.html
 
       - name: Publish to Blogspot
-        uses: frankhjung/blogspot-publishing@main
+        uses: frankhjung/blogspot-publishing@v1
         with:
           title: "Base Rate Fallacy Explained"
           source-file: "public/index.html"
@@ -165,14 +180,27 @@ codebase. Automation removes the friction of publishing, ensuring that your
 insights move from your editor to your audience with maximum security and
 minimal toil.
 
-Now that your publishing is automated, what complex technical story will you
-tell next?
+### Handling Format Constraints
 
-## References
+The limitation with posting to Blogger is that it requires posts to be in HTML
+format. You may prefer Markdown like the pages on your wiki or documentation
+site. This approach offers a compromise: using Pandoc or R Markdown allows you
+to write in Markdown and convert to HTML as part of your build process.
+
+## More Information
 
 * [Blogger REST API v3](https://developers.google.com/blogger/docs/3.0/reference/posts)
 * [Git](https://git-scm.com/)
 * [GitHub Actions](https://github.com/features/actions)
 * [GitHub](https://github.com/)
-* [Example: GitHub Actions for Blogger](https://github.com/frankhjung/blogspot-publishing)
-* [Example: article-base-rate Repository](https://github.com/frankhjung/article-base-rate)
+* [Markdown guide](https://www.markdownguide.org/)
+* [Pandoc](https://pandoc.org/)
+* Example repository:
+  [article-base-rate](https://github.com/frankhjung/article-base-rate)
+* Example repository:
+  [article-publish-to-blogspot](https://github.com/frankhjung/article-publish-to-blogspot)
+  this blog post uses this repository as its source
+* GitHub Publish to Blogger Action:
+  [GitHub Actions for Blogger](https://github.com/frankhjung/blogspot-publishing)
+  used to publish posts to Blogger
+* [R Markdown](https://rmarkdown.rstudio.com/)

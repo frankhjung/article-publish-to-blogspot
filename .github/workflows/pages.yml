@@ -1,5 +1,4 @@
 ---
-  
 name: publish article
 
 on:
@@ -38,7 +37,7 @@ jobs:
         uses: actions/deploy-pages@v4
 
       - name: publish to blog
-        uses: frankhjung/blogspot-publishing@main
+        uses: frankhjung/blogspot-publishing@v1
         with:
           source-file: "public/index.html"
           title: ${{ env.ARTICLE_TITLE }}

@@ -27,6 +27,10 @@ default: $(PROJECT).html $(PROJECT).pdf
 		--output public/$@ \
 		$<
 
+.PHONY: update-date
+update-date:
+	sed -i "s/^date: .*/date: $(shell date +%Y-%m-%d)/" README.md
+
 .PHONY: clean
 clean:
 	@$(RM) -rf public
