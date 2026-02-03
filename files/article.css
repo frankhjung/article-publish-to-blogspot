@@ -1,0 +1,161 @@
+/* Simplified article theme (screen-focused) */
+
+:root {
+  --accent: #1771ad;
+  --text: #333;
+  --background: #ffffff;
+}
+
+body {
+  font-family: Georgia, "Times New Roman", serif;
+  line-height: 1.6;
+  color: var(--text);
+  background-color: var(--background);
+  max-width: 800px;
+  margin: 0 auto;
+  padding: 20px;
+}
+
+h1, h2, h3, h4, h5, h6, b, strong, i {
+  color: var(--accent);
+  font-weight: bold;
+  margin-top: 2em;
+  margin-bottom: 1em;
+}
+
+h1 { font-size: 2.5em; }
+h2 { font-size: 2em; }
+h3 { font-size: 1.5em; }
+h4 { font-size: 1.2em; }
+h5 { font-size: 1em; }
+h6 { font-size: 0.9em; }
+
+p {
+  margin: 1em 0;
+}
+
+a {
+  color: var(--accent);
+  text-decoration: none;
+}
+
+a:hover {
+  text-decoration: underline;
+}
+
+blockquote {
+  border-left: 4px solid var(--accent);
+  margin: 1em 0;
+  padding: 1em;
+  padding-left: 1.2em;
+  color: #555;
+  font-style: italic;
+  background-color: var(--background);
+  border-radius: 0 4px 4px 0;
+}
+
+pre {
+  border-radius: 4px;
+  padding: 1em;
+  overflow-x: auto;
+  font-family: "Monaco", "Consolas", "Courier New", monospace;
+  font-size: 0.9em;
+  background: #f6f8fa;
+  border: 1px solid #e1e4e8;
+}
+
+code {
+  padding: 2px 4px;
+  border-radius: 3px;
+  font-family: "Monaco", "Consolas", "Courier New", monospace;
+  font-size: 0.9em;
+  background: #f6f8fa;
+  border: 1px solid #e1e4e8;
+}
+
+table {
+  border-collapse: collapse;
+  width: 100%;
+  margin: 1em 0;
+}
+
+th, td {
+  border: 1px solid #dcdcdc;
+  padding: 8px 12px;
+  text-align: left;
+}
+
+th {
+  background-color: var(--accent);
+  color: #fff;
+  font-weight: bold;
+}
+
+ul, ol {
+  margin: 1em 0;
+  padding-left: 2em;
+}
+
+li {
+  margin: 0.5em 0;
+}
+
+img {
+  max-width: 100%;
+  height: auto;
+  display: block;
+  margin: 1em auto;
+}
+
+figure {
+  text-align: center;
+  margin: 1em 0;
+}
+
+figcaption {
+  font-size: 0.9em;
+  font-style: italic;
+  color: #555;
+}
+
+/* Minimal print styles: readable, no colors */
+@media print {
+  * {
+    color: #000 !important;
+    background: transparent !important;
+    box-shadow: none !important;
+  }
+
+  body {
+    max-width: 100%;
+    margin: 0;
+    padding: 0.5in;
+    line-height: 1.5;
+    font-size: 11pt;
+  }
+
+  a::after {
+    content: " (" attr(href) ")";
+    font-size: 0.9em;
+  }
+
+  pre, code {
+    border: none;
+    background: transparent;
+  }
+
+  img {
+    max-width: 100%;
+    height: auto;
+  }
+
+  table {
+    width: 100%;
+    border-collapse: collapse;
+  }
+
+  th, td {
+    border: 1px solid #000;
+    padding: 4px 6px;
+  }
+}

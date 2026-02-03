@@ -1,0 +1,423 @@
+<!DOCTYPE html>
+<html xmlns="http://www.w3.org/1999/xhtml" lang xml:lang>
+<head>
+  <meta charset="utf-8" />
+  <meta name="generator" content="pandoc" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=yes" />
+  <meta name="author" content="Frank Jung" />
+  <meta name="dcterms.date" content="2026-02-03" />
+  <title>From Code to Content: Automating Your Blogger Workflow with GitHub</title>
+  <style>
+code{white-space: pre-wrap;}
+span.smallcaps{font-variant: small-caps;}
+div.columns{display: flex; gap: min(4vw, 1.5em);}
+div.column{flex: auto; overflow-x: auto;}
+div.hanging-indent{margin-left: 1.5em; text-indent: -1.5em;}
+
+ul.task-list[class]{list-style: none;}
+ul.task-list li input[type="checkbox"] {
+font-size: inherit;
+width: 0.8em;
+margin: 0 0.8em 0.2em -1.6em;
+vertical-align: middle;
+}
+.display.math{display: block; text-align: center; margin: 0.5rem auto;}
+
+pre > code.sourceCode { white-space: pre; position: relative; }
+pre > code.sourceCode > span { line-height: 1.25; }
+pre > code.sourceCode > span:empty { height: 1.2em; }
+.sourceCode { overflow: visible; }
+code.sourceCode > span { color: inherit; text-decoration: inherit; }
+div.sourceCode { margin: 1em 0; }
+pre.sourceCode { margin: 0; }
+@media screen {
+div.sourceCode { overflow: auto; }
+}
+@media print {
+pre > code.sourceCode { white-space: pre-wrap; }
+pre > code.sourceCode > span { display: inline-block; text-indent: -5em; padding-left: 5em; }
+}
+pre.numberSource code
+{ counter-reset: source-line 0; }
+pre.numberSource code > span
+{ position: relative; left: -4em; counter-increment: source-line; }
+pre.numberSource code > span > a:first-child::before
+{ content: counter(source-line);
+position: relative; left: -1em; text-align: right; vertical-align: baseline;
+border: none; display: inline-block;
+-webkit-touch-callout: none; -webkit-user-select: none;
+-khtml-user-select: none; -moz-user-select: none;
+-ms-user-select: none; user-select: none;
+padding: 0 4px; width: 4em;
+color: #aaaaaa;
+}
+pre.numberSource { margin-left: 3em; border-left: 1px solid #aaaaaa; padding-left: 4px; }
+div.sourceCode
+{ }
+@media screen {
+pre > code.sourceCode > span > a:first-child::before { text-decoration: underline; }
+}
+code span.al { color: #ff0000; font-weight: bold; } 
+code span.an { color: #60a0b0; font-weight: bold; font-style: italic; } 
+code span.at { color: #7d9029; } 
+code span.bn { color: #40a070; } 
+code span.bu { color: #008000; } 
+code span.cf { color: #007020; font-weight: bold; } 
+code span.ch { color: #4070a0; } 
+code span.cn { color: #880000; } 
+code span.co { color: #60a0b0; font-style: italic; } 
+code span.cv { color: #60a0b0; font-weight: bold; font-style: italic; } 
+code span.do { color: #ba2121; font-style: italic; } 
+code span.dt { color: #902000; } 
+code span.dv { color: #40a070; } 
+code span.er { color: #ff0000; font-weight: bold; } 
+code span.ex { } 
+code span.fl { color: #40a070; } 
+code span.fu { color: #06287e; } 
+code span.im { color: #008000; font-weight: bold; } 
+code span.in { color: #60a0b0; font-weight: bold; font-style: italic; } 
+code span.kw { color: #007020; font-weight: bold; } 
+code span.op { color: #666666; } 
+code span.ot { color: #007020; } 
+code span.pp { color: #bc7a00; } 
+code span.sc { color: #4070a0; } 
+code span.ss { color: #bb6688; } 
+code span.st { color: #4070a0; } 
+code span.va { color: #19177c; } 
+code span.vs { color: #4070a0; } 
+code span.wa { color: #60a0b0; font-weight: bold; font-style: italic; } 
+</style>
+  <style type="text/css">
+:root {
+--accent: #1771ad;
+--text: #333;
+--background: #ffffff;
+}
+body {
+font-family: Georgia, "Times New Roman", serif;
+line-height: 1.6;
+color: var(--text);
+background-color: var(--background);
+max-width: 800px;
+margin: 0 auto;
+padding: 20px;
+}
+h1, h2, h3, h4, h5, h6, b, strong, i {
+color: var(--accent);
+font-weight: bold;
+margin-top: 2em;
+margin-bottom: 1em;
+}
+h1 { font-size: 2.5em; }
+h2 { font-size: 2em; }
+h3 { font-size: 1.5em; }
+h4 { font-size: 1.2em; }
+h5 { font-size: 1em; }
+h6 { font-size: 0.9em; }
+p {
+margin: 1em 0;
+}
+a {
+color: var(--accent);
+text-decoration: none;
+}
+a:hover {
+text-decoration: underline;
+}
+blockquote {
+border-left: 4px solid var(--accent);
+margin: 1em 0;
+padding: 1em;
+padding-left: 1.2em;
+color: #555;
+font-style: italic;
+background-color: var(--background);
+border-radius: 0 4px 4px 0;
+}
+pre {
+border-radius: 4px;
+padding: 1em;
+overflow-x: auto;
+font-family: "Monaco", "Consolas", "Courier New", monospace;
+font-size: 0.9em;
+background: #f6f8fa;
+border: 1px solid #e1e4e8;
+}
+code {
+padding: 2px 4px;
+border-radius: 3px;
+font-family: "Monaco", "Consolas", "Courier New", monospace;
+font-size: 0.9em;
+background: #f6f8fa;
+border: 1px solid #e1e4e8;
+}
+table {
+border-collapse: collapse;
+width: 100%;
+margin: 1em 0;
+}
+th, td {
+border: 1px solid #dcdcdc;
+padding: 8px 12px;
+text-align: left;
+}
+th {
+background-color: var(--accent);
+color: #fff;
+font-weight: bold;
+}
+ul, ol {
+margin: 1em 0;
+padding-left: 2em;
+}
+li {
+margin: 0.5em 0;
+}
+img {
+max-width: 100%;
+height: auto;
+display: block;
+margin: 1em auto;
+}
+figure {
+text-align: center;
+margin: 1em 0;
+}
+figcaption {
+font-size: 0.9em;
+font-style: italic;
+color: #555;
+}
+
+@media print {
+* {
+color: #000 !important;
+background: transparent !important;
+box-shadow: none !important;
+}
+body {
+max-width: 100%;
+margin: 0;
+padding: 0.5in;
+line-height: 1.5;
+font-size: 11pt;
+}
+a::after {
+content: " (" attr(href) ")";
+font-size: 0.9em;
+}
+pre, code {
+border: none;
+background: transparent;
+}
+img {
+max-width: 100%;
+height: auto;
+}
+table {
+width: 100%;
+border-collapse: collapse;
+}
+th, td {
+border: 1px solid #000;
+padding: 4px 6px;
+}
+}
+</style>
+</head>
+<body>
+<header id="title-block-header">
+<h1 class="title">From Code to Content: Automating Your Blogger Workflow
+with GitHub</h1>
+<p class="author"><a href="https://www.linkedin.com/in/frankjung/">Frank
+Jung</a></p>
+<p class="date">2026-02-03</p>
+</header>
+<p>For the modern developer, the desire to share technical insights is
+often hindered by the &quot;toil&quot; of the publishing process. We live in our
+code editors and terminal sessions, yet sharing those insights on
+platforms like Blogger (Blogspot) traditionally requires a regression to
+manual labour: copy-pasting HTML, wrestling with web-based WYSIWYG
+editors, and manually managing assets. This cognitive load creates a
+significant barrier to entry, often resulting in stale repositories and
+abandoned drafts.</p>
+<p>It is time to eliminate this friction. By adopting a &quot;Blogging as
+Code&quot; manifesto, you can transform your workflow into a seamless,
+automated CI/CD pipeline. By leveraging the Blogger REST API v3 and
+GitHub Actions, you can treat your blog with the same engineering rigor
+as your production software.</p>
+<h2 id="1-the-api-is-your-most-powerful-ally">1. The API is Your Most
+Powerful Ally</h2>
+<p>The core shift in this methodology is viewing Blogger not as a
+website, but as a deployment target. The Blogger REST API v3 allows
+developers to bypass the browser entirely, enabling programmatic
+creation and updates of posts.</p>
+<p>Treating your blog as a deployment target via an API offers three
+critical advantages for the DevOps-minded writer:</p>
+<ul>
+<li>Version Control: Your content resides in a Git repository, providing
+a single source of truth and a complete audit trail of changes.</li>
+<li>Consistency: Automation ensures that metadata, labels, and
+formatting are applied uniformly, eliminating &quot;snowflake&quot; posts.</li>
+<li>GitOps for Content: Merging a pull request to your main branch
+becomes the trigger for your live content updates.</li>
+</ul>
+<h2 id="2-security-starts-in-the-google-cloud-console">2. Security
+Starts in the Google Cloud Console</h2>
+<p>Automation requires a bridge of trust between GitHub and Google. This
+is established in the Google Cloud Console by enabling OAuth 2.0. To
+begin, you must explicitly search for and enable the Blogger API within
+your project.</p>
+<p>Once the API is active, you will generate two critical
+credentials:</p>
+<ol type="1">
+<li><code>CLIENT_ID</code></li>
+<li><code>CLIENT_SECRET</code></li>
+</ol>
+<p>These are not just identifiers; they are the foundation used to
+generate a REFRESH_TOKEN. Because GitHub Actions run in a
+non-interactive environment, this refresh token is the key to secure,
+long-term authentication, allowing the workflow to request fresh access
+tokens without manual intervention or the storage of your primary
+account password.</p>
+<h2 id="3-knowing-your-unique-identifiers">3. Knowing Your Unique
+Identifiers</h2>
+<p>To route your content correctly, the pipeline must identify your
+specific destination. This is handled by your <code>BLOG_ID</code>.
+Together, these parameters form the &quot;Big Four&quot; authentication and
+identification components required for your pipeline.</p>
+<table>
+<thead>
+<tr class="header">
+<th>Parameter</th>
+<th>Description</th>
+</tr>
+</thead>
+<tbody>
+<tr class="odd">
+<td><code>CLIENT_ID</code></td>
+<td>The Google OAuth Client ID derived from the Cloud Console.</td>
+</tr>
+<tr class="even">
+<td><code>CLIENT_SECRET</code></td>
+<td>The Google OAuth Client Secret used for authorization.</td>
+</tr>
+<tr class="odd">
+<td><code>REFRESH_TOKEN</code></td>
+<td>The secure token that allows for long-term, non-interactive API
+access.</td>
+</tr>
+<tr class="even">
+<td><code>BLOG_ID</code></td>
+<td>The unique identifier for your specific destination blog.</td>
+</tr>
+</tbody>
+</table>
+<p><strong>[!WARNING]</strong> Security Best Practice: It is essential
+that these four values are stored as GitHub Secrets. Hardcoding these
+credentials in your YAML or repository exposes your Google account to
+the public. By using GitHub Secrets, they are encrypted and injected
+into the runner environment only during execution.</p>
+<h2 id="4-the-anatomy-of-an-automated-post">4. The Anatomy of an
+Automated Post</h2>
+<p>The heavy lifting of the API interaction is managed by the
+frankhjung/blogspot-publishing@main GitHub Action. This utility expects
+a specific set of inputs to govern how your content is delivered:</p>
+<ul>
+<li><code>title</code>: The headline of your post.</li>
+<li><code>source-file</code>: The path to the rendered HTML
+content.</li>
+<li><code>blog-id</code>: Your destination identifier.</li>
+<li><code>labels</code>: A comma-separated list of tags (e.g., &quot;tech,
+devops, tutorial&quot;) to organise your content.</li>
+<li><code>client-id</code> / <code>client-secret</code> /
+<code>refresh-token</code>: Your secure authentication suite.</li>
+</ul>
+<p>The source-file input expects HTML. While the Blogger API consumes
+HTML, your source remains in the format you prefer—such as Markdown or R
+Markdown. This is handled by a &quot;build&quot; stage in your workflow that
+converts your source code into the final deployment artifact.</p>
+<h2 id="5-updates-without-the-duplication-headache">5. Updates Without
+the Duplication Headache</h2>
+<p>One of the most elegant features of this automated approach is
+Idempotency. In a traditional manual workflow, fixing a typo means
+hunting through a dashboard. In a naive automated system, re-running a
+pipeline would simply create a duplicate post.</p>
+<p>The blogspot-publishing utility avoids this by using the post title
+as a unique identifier. As the source material confirms:</p>
+<p>&quot;If a post with the same title already exists, it updates the
+existing post (content only) instead of creating a duplicate.&quot;</p>
+<p>This supports a truly iterative writing process. Correct a technical
+error in your repository, push to main, and the Action will find the
+existing post and update its content. Note: Because the title is the
+identifier, changing the title in your source file will result in a new
+post being created. Additionally, to provide a final safety check, all
+new posts are created as drafts by default, giving you one last
+opportunity for a manual preview before going live.</p>
+<h2 id="6-bringing-it-all-together-in-yaml">6. Bringing It All Together
+in YAML</h2>
+<p>To see this in practice, consider a repository like
+article-base-rate, which uses complex data visualisations. The content
+is written in R Markdown (.Rmd), requiring R (version 4.0+) and a
+Makefile to render the final HTML.</p>
+<p>Your .github/workflows/publish.yml integrates the build and
+deployment stages into a single, cohesive CI/CD pipeline:</p>
+<div class="sourceCode" id="cb1"><pre class="sourceCode yaml"><code class="sourceCode yaml"><span id="cb1-1"><a href="#cb1-1" aria-hidden="true" tabindex="-1"></a><span class="pp">---</span></span>
+<span id="cb1-2"><a href="#cb1-2" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb1-3"><a href="#cb1-3" aria-hidden="true" tabindex="-1"></a><span class="fu">name</span><span class="kw">:</span><span class="at"> Publish to Blogger</span></span>
+<span id="cb1-4"><a href="#cb1-4" aria-hidden="true" tabindex="-1"></a><span class="fu">on</span><span class="kw">:</span></span>
+<span id="cb1-5"><a href="#cb1-5" aria-hidden="true" tabindex="-1"></a><span class="at">  </span><span class="fu">push</span><span class="kw">:</span></span>
+<span id="cb1-6"><a href="#cb1-6" aria-hidden="true" tabindex="-1"></a><span class="at">    </span><span class="fu">branches</span><span class="kw">:</span><span class="at"> </span><span class="kw">[</span><span class="at"> main </span><span class="kw">]</span></span>
+<span id="cb1-7"><a href="#cb1-7" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb1-8"><a href="#cb1-8" aria-hidden="true" tabindex="-1"></a><span class="fu">jobs</span><span class="kw">:</span></span>
+<span id="cb1-9"><a href="#cb1-9" aria-hidden="true" tabindex="-1"></a><span class="at">  </span><span class="fu">build-and-deploy</span><span class="kw">:</span></span>
+<span id="cb1-10"><a href="#cb1-10" aria-hidden="true" tabindex="-1"></a><span class="at">    </span><span class="fu">runs-on</span><span class="kw">:</span><span class="at"> ubuntu-latest</span></span>
+<span id="cb1-11"><a href="#cb1-11" aria-hidden="true" tabindex="-1"></a><span class="at">    </span><span class="fu">steps</span><span class="kw">:</span></span>
+<span id="cb1-12"><a href="#cb1-12" aria-hidden="true" tabindex="-1"></a><span class="at">      </span><span class="kw">-</span><span class="at"> </span><span class="fu">name</span><span class="kw">:</span><span class="at"> Checkout code</span></span>
+<span id="cb1-13"><a href="#cb1-13" aria-hidden="true" tabindex="-1"></a><span class="at">        </span><span class="fu">uses</span><span class="kw">:</span><span class="at"> actions/checkout@v4</span></span>
+<span id="cb1-14"><a href="#cb1-14" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb1-15"><a href="#cb1-15" aria-hidden="true" tabindex="-1"></a><span class="at">      </span><span class="kw">-</span><span class="at"> </span><span class="fu">name</span><span class="kw">:</span><span class="at"> Set up R</span></span>
+<span id="cb1-16"><a href="#cb1-16" aria-hidden="true" tabindex="-1"></a><span class="at">        </span><span class="fu">uses</span><span class="kw">:</span><span class="at"> r-lib/actions/setup-r@v2</span></span>
+<span id="cb1-17"><a href="#cb1-17" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb1-18"><a href="#cb1-18" aria-hidden="true" tabindex="-1"></a><span class="at">      </span><span class="kw">-</span><span class="at"> </span><span class="fu">name</span><span class="kw">:</span><span class="at"> Install dependencies and render</span></span>
+<span id="cb1-19"><a href="#cb1-19" aria-hidden="true" tabindex="-1"></a><span class="fu">        run</span><span class="kw">: </span><span class="ch">|</span></span>
+<span id="cb1-20"><a href="#cb1-20" aria-hidden="true" tabindex="-1"></a>          Rscript -e &#39;install.packages(c(&quot;rmarkdown&quot;, &quot;ggplot2&quot;, &quot;knitr&quot;))&#39;</span>
+<span id="cb1-21"><a href="#cb1-21" aria-hidden="true" tabindex="-1"></a>          make base-rate.html</span>
+<span id="cb1-22"><a href="#cb1-22" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb1-23"><a href="#cb1-23" aria-hidden="true" tabindex="-1"></a><span class="at">      </span><span class="kw">-</span><span class="at"> </span><span class="fu">name</span><span class="kw">:</span><span class="at"> Publish to Blogspot</span></span>
+<span id="cb1-24"><a href="#cb1-24" aria-hidden="true" tabindex="-1"></a><span class="at">        </span><span class="fu">uses</span><span class="kw">:</span><span class="at"> frankhjung/blogspot-publishing@main</span></span>
+<span id="cb1-25"><a href="#cb1-25" aria-hidden="true" tabindex="-1"></a><span class="at">        </span><span class="fu">with</span><span class="kw">:</span></span>
+<span id="cb1-26"><a href="#cb1-26" aria-hidden="true" tabindex="-1"></a><span class="at">          </span><span class="fu">title</span><span class="kw">:</span><span class="at"> </span><span class="st">&quot;Base Rate Fallacy Explained&quot;</span></span>
+<span id="cb1-27"><a href="#cb1-27" aria-hidden="true" tabindex="-1"></a><span class="at">          </span><span class="fu">source-file</span><span class="kw">:</span><span class="at"> </span><span class="st">&quot;public/index.html&quot;</span></span>
+<span id="cb1-28"><a href="#cb1-28" aria-hidden="true" tabindex="-1"></a><span class="at">          </span><span class="fu">blog-id</span><span class="kw">:</span><span class="at"> ${{ secrets.BLOGGER_BLOG_ID }}</span></span>
+<span id="cb1-29"><a href="#cb1-29" aria-hidden="true" tabindex="-1"></a><span class="at">          </span><span class="fu">client-id</span><span class="kw">:</span><span class="at"> ${{ secrets.BLOGGER_CLIENT_ID }}</span></span>
+<span id="cb1-30"><a href="#cb1-30" aria-hidden="true" tabindex="-1"></a><span class="at">          </span><span class="fu">client-secret</span><span class="kw">:</span><span class="at"> ${{ secrets.BLOGGER_CLIENT_SECRET }}</span></span>
+<span id="cb1-31"><a href="#cb1-31" aria-hidden="true" tabindex="-1"></a><span class="at">          </span><span class="fu">refresh-token</span><span class="kw">:</span><span class="at"> ${{ secrets.BLOGGER_REFRESH_TOKEN }}</span></span>
+<span id="cb1-32"><a href="#cb1-32" aria-hidden="true" tabindex="-1"></a><span class="at">          </span><span class="fu">labels</span><span class="kw">:</span><span class="at"> </span><span class="st">&quot;statistics, r-programming, data-science&quot;</span></span></code></pre></div>
+<p>This configuration mirrors the logic of deploying to GitHub Pages but
+redirects the final, styled output to the Blogger platform, bridging the
+gap between sophisticated data analysis and public outreach.</p>
+<h2 id="conclusion-the-future-of-your-technical-blog">Conclusion: The
+Future of Your Technical Blog</h2>
+<p>By migrating your workflow from manual uploads to a sophisticated
+CI/CD pipeline, you treat your intellectual output with the same respect
+as your codebase. Automation removes the friction of publishing,
+ensuring that your insights move from your editor to your audience with
+maximum security and minimal toil.</p>
+<p>Now that your publishing is automated, what complex technical story
+will you tell next?</p>
+<h2 id="references">References</h2>
+<ul>
+<li><a href="https://developers.google.com/blogger/docs/3.0/reference/posts">Blogger
+REST API v3</a></li>
+<li><a href="https://git-scm.com/">Git</a></li>
+<li><a href="https://github.com/features/actions">GitHub
+Actions</a></li>
+<li><a href="https://github.com/">GitHub</a></li>
+<li><a href="https://github.com/frankhjung/blogspot-publishing">Example:
+GitHub Actions for Blogger</a></li>
+<li><a href="https://github.com/frankhjung/article-base-rate">Example:
+article-base-rate Repository</a></li>
+</ul>
+</body>
+</html>
