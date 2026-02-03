@@ -23,8 +23,8 @@ blog with the same engineering rigour as your production software.
 ## 1. The API as Your Deployment Interface
 
 The core shift in this methodology is viewing Blogger not as a website, but as a
-deployment target. The Blogger REST API v3 allows developers to bypass the
-browser entirely, enabling programmatic creation and updates of posts.
+deployment target. The Blogger REST API allows developers to bypass the browser
+entirely, enabling programmatic creation and updates of posts.
 
 Treating your blog as a deployment target via an API offers three critical
 advantages for the DevOps-minded writer:
@@ -32,8 +32,8 @@ advantages for the DevOps-minded writer:
 * Version Control: Your content resides in a Git repository, providing a single
   source of truth and a complete audit trail of changes.
 * Consistency: Automation ensures that metadata, labels, and formatting are
-  applied uniformly, eliminating "snowflake" posts.
-* GitOps for Content: Merging a pull request to your main branch becomes the
+  applied uniformly, eliminating inconsistent posts.
+* GitOps for Content: Merging a pull request to your `main` branch becomes the
   trigger for your live content updates.
 
 ## 2. Security Starts in the Google Cloud Console
@@ -134,8 +134,6 @@ The `.github/workflows/publish.yml` integrates the build and deployment stages
 into a single, cohesive CI/CD pipeline:
 
 ```yaml
----
-
 name: Publish to Blogger
 on:
   push:
@@ -156,7 +154,7 @@ jobs:
           Rscript -e 'install.packages(c("rmarkdown", "ggplot2", "knitr"))'
           make base-rate.html
 
-      - name: Publish to Blogspot
+      - name: Publish to Blogger
         uses: frankhjung/blogspot-publishing@v1
         with:
           title: "Base Rate Fallacy Explained"
@@ -172,20 +170,29 @@ This configuration mirrors the logic of deploying to GitHub Pages but redirects
 the final, styled output to the Blogger platform, bridging the gap between
 sophisticated data analysis and public outreach.
 
+## 7. Handling Format Constraints
+
+The Blogger API expects post content as HTML, even if you prefer writing in
+Markdown (as you would for a wiki or documentation site). The compromise is a
+simple build step that converts your source into a single HTML file.
+
+In practice, that usually looks like one of these:
+
+* Markdown → HTML via Pandoc.
+* R Markdown → HTML via `rmarkdown`.
+
+The output HTML becomes the workflow artefact you pass as `source-file` (for
+example, `public/index.html`).
+
 ## Conclusion: The Future of Your Technical Blog
 
-By migrating your workflow from manual uploads to a sophisticated CI/CD
-pipeline, you treat your intellectual output with the same respect as your
-codebase. Automation removes the friction of publishing, ensuring that your
-insights move from your editor to your audience with maximum security and
-minimal toil.
+Treating Blogger as a deployment target lets you apply the same engineering
+discipline to writing that you already apply to software: version-controlled
+content, repeatable builds, and automated publishing.
 
-### Handling Format Constraints
-
-The limitation with posting to Blogger is that it requires posts to be in HTML
-format. You may prefer Markdown like the pages on your wiki or documentation
-site. This approach offers a compromise: using Pandoc or R Markdown allows you
-to write in Markdown and convert to HTML as part of your build process.
+Once the pipeline is in place, publishing becomes routine: write in the format
+you like, render to HTML, and let GitHub Actions update the existing post via
+the API.
 
 ## More Information
 
@@ -198,9 +205,9 @@ to write in Markdown and convert to HTML as part of your build process.
 * Example repository:
   [article-base-rate](https://github.com/frankhjung/article-base-rate)
 * Example repository:
-  [article-publish-to-blogspot](https://github.com/frankhjung/article-publish-to-blogspot)
-  this blog post uses this repository as its source
+  [article-publish-to-blogspot](https://github.com/frankhjung/article-publish-to-blogspot).
+  This post uses this repository as its source.
 * GitHub Publish to Blogger Action:
-  [GitHub Actions for Blogger](https://github.com/frankhjung/blogspot-publishing)
-  used to publish posts to Blogger
+  [GitHub Actions for Blogger](https://github.com/frankhjung/blogspot-publishing).
+  Used to publish posts to Blogger.
 * [R Markdown](https://rmarkdown.rstudio.com/)

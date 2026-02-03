@@ -251,7 +251,7 @@ your production software.</p>
 <h2 id="1-the-api-as-your-deployment-interface">1. The API as Your
 Deployment Interface</h2>
 <p>The core shift in this methodology is viewing Blogger not as a
-website, but as a deployment target. The Blogger REST API v3 allows
+website, but as a deployment target. The Blogger REST API allows
 developers to bypass the browser entirely, enabling programmatic
 creation and updates of posts.</p>
 <p>Treating your blog as a deployment target via an API offers three
@@ -260,9 +260,9 @@ critical advantages for the DevOps-minded writer:</p>
 <li>Version Control: Your content resides in a Git repository, providing
 a single source of truth and a complete audit trail of changes.</li>
 <li>Consistency: Automation ensures that metadata, labels, and
-formatting are applied uniformly, eliminating &quot;snowflake&quot; posts.</li>
-<li>GitOps for Content: Merging a pull request to your main branch
-becomes the trigger for your live content updates.</li>
+formatting are applied uniformly, eliminating inconsistent posts.</li>
+<li>GitOps for Content: Merging a pull request to your <code>main</code>
+branch becomes the trigger for your live content updates.</li>
 </ul>
 <h2 id="2-security-starts-in-the-google-cloud-console">2. Security
 Starts in the Google Cloud Console</h2>
@@ -375,54 +375,62 @@ Markdown (.Rmd), requiring R (version 4.0+) and a Makefile to render the
 final HTML.</p>
 <p>The <code>.github/workflows/publish.yml</code> integrates the build
 and deployment stages into a single, cohesive CI/CD pipeline:</p>
-<div class="sourceCode" id="cb1"><pre class="sourceCode yaml"><code class="sourceCode yaml"><span id="cb1-1"><a href="#cb1-1" aria-hidden="true" tabindex="-1"></a><span class="pp">---</span></span>
-<span id="cb1-2"><a href="#cb1-2" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb1-3"><a href="#cb1-3" aria-hidden="true" tabindex="-1"></a><span class="fu">name</span><span class="kw">:</span><span class="at"> Publish to Blogger</span></span>
-<span id="cb1-4"><a href="#cb1-4" aria-hidden="true" tabindex="-1"></a><span class="fu">on</span><span class="kw">:</span></span>
-<span id="cb1-5"><a href="#cb1-5" aria-hidden="true" tabindex="-1"></a><span class="at">  </span><span class="fu">push</span><span class="kw">:</span></span>
-<span id="cb1-6"><a href="#cb1-6" aria-hidden="true" tabindex="-1"></a><span class="at">    </span><span class="fu">branches</span><span class="kw">:</span><span class="at"> </span><span class="kw">[</span><span class="at"> main </span><span class="kw">]</span></span>
-<span id="cb1-7"><a href="#cb1-7" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb1-8"><a href="#cb1-8" aria-hidden="true" tabindex="-1"></a><span class="fu">jobs</span><span class="kw">:</span></span>
-<span id="cb1-9"><a href="#cb1-9" aria-hidden="true" tabindex="-1"></a><span class="at">  </span><span class="fu">build-and-deploy</span><span class="kw">:</span></span>
-<span id="cb1-10"><a href="#cb1-10" aria-hidden="true" tabindex="-1"></a><span class="at">    </span><span class="fu">runs-on</span><span class="kw">:</span><span class="at"> ubuntu-latest</span></span>
-<span id="cb1-11"><a href="#cb1-11" aria-hidden="true" tabindex="-1"></a><span class="at">    </span><span class="fu">steps</span><span class="kw">:</span></span>
-<span id="cb1-12"><a href="#cb1-12" aria-hidden="true" tabindex="-1"></a><span class="at">      </span><span class="kw">-</span><span class="at"> </span><span class="fu">name</span><span class="kw">:</span><span class="at"> Checkout code</span></span>
-<span id="cb1-13"><a href="#cb1-13" aria-hidden="true" tabindex="-1"></a><span class="at">        </span><span class="fu">uses</span><span class="kw">:</span><span class="at"> actions/checkout@v4</span></span>
-<span id="cb1-14"><a href="#cb1-14" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb1-15"><a href="#cb1-15" aria-hidden="true" tabindex="-1"></a><span class="at">      </span><span class="kw">-</span><span class="at"> </span><span class="fu">name</span><span class="kw">:</span><span class="at"> Set up R</span></span>
-<span id="cb1-16"><a href="#cb1-16" aria-hidden="true" tabindex="-1"></a><span class="at">        </span><span class="fu">uses</span><span class="kw">:</span><span class="at"> r-lib/actions/setup-r@v2</span></span>
-<span id="cb1-17"><a href="#cb1-17" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb1-18"><a href="#cb1-18" aria-hidden="true" tabindex="-1"></a><span class="at">      </span><span class="kw">-</span><span class="at"> </span><span class="fu">name</span><span class="kw">:</span><span class="at"> Install dependencies and render</span></span>
-<span id="cb1-19"><a href="#cb1-19" aria-hidden="true" tabindex="-1"></a><span class="fu">        run</span><span class="kw">: </span><span class="ch">|</span></span>
-<span id="cb1-20"><a href="#cb1-20" aria-hidden="true" tabindex="-1"></a>          Rscript -e &#39;install.packages(c(&quot;rmarkdown&quot;, &quot;ggplot2&quot;, &quot;knitr&quot;))&#39;</span>
-<span id="cb1-21"><a href="#cb1-21" aria-hidden="true" tabindex="-1"></a>          make base-rate.html</span>
-<span id="cb1-22"><a href="#cb1-22" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb1-23"><a href="#cb1-23" aria-hidden="true" tabindex="-1"></a><span class="at">      </span><span class="kw">-</span><span class="at"> </span><span class="fu">name</span><span class="kw">:</span><span class="at"> Publish to Blogspot</span></span>
-<span id="cb1-24"><a href="#cb1-24" aria-hidden="true" tabindex="-1"></a><span class="at">        </span><span class="fu">uses</span><span class="kw">:</span><span class="at"> frankhjung/blogspot-publishing@v1</span></span>
-<span id="cb1-25"><a href="#cb1-25" aria-hidden="true" tabindex="-1"></a><span class="at">        </span><span class="fu">with</span><span class="kw">:</span></span>
-<span id="cb1-26"><a href="#cb1-26" aria-hidden="true" tabindex="-1"></a><span class="at">          </span><span class="fu">title</span><span class="kw">:</span><span class="at"> </span><span class="st">&quot;Base Rate Fallacy Explained&quot;</span></span>
-<span id="cb1-27"><a href="#cb1-27" aria-hidden="true" tabindex="-1"></a><span class="at">          </span><span class="fu">source-file</span><span class="kw">:</span><span class="at"> </span><span class="st">&quot;public/index.html&quot;</span></span>
-<span id="cb1-28"><a href="#cb1-28" aria-hidden="true" tabindex="-1"></a><span class="at">          </span><span class="fu">blog-id</span><span class="kw">:</span><span class="at"> ${{ secrets.BLOGGER_BLOG_ID }}</span></span>
-<span id="cb1-29"><a href="#cb1-29" aria-hidden="true" tabindex="-1"></a><span class="at">          </span><span class="fu">client-id</span><span class="kw">:</span><span class="at"> ${{ secrets.BLOGGER_CLIENT_ID }}</span></span>
-<span id="cb1-30"><a href="#cb1-30" aria-hidden="true" tabindex="-1"></a><span class="at">          </span><span class="fu">client-secret</span><span class="kw">:</span><span class="at"> ${{ secrets.BLOGGER_CLIENT_SECRET }}</span></span>
-<span id="cb1-31"><a href="#cb1-31" aria-hidden="true" tabindex="-1"></a><span class="at">          </span><span class="fu">refresh-token</span><span class="kw">:</span><span class="at"> ${{ secrets.BLOGGER_REFRESH_TOKEN }}</span></span>
-<span id="cb1-32"><a href="#cb1-32" aria-hidden="true" tabindex="-1"></a><span class="at">          </span><span class="fu">labels</span><span class="kw">:</span><span class="at"> </span><span class="st">&quot;statistics, r-programming, data-science&quot;</span></span></code></pre></div>
+<div class="sourceCode" id="cb1"><pre class="sourceCode yaml"><code class="sourceCode yaml"><span id="cb1-1"><a href="#cb1-1" aria-hidden="true" tabindex="-1"></a><span class="fu">name</span><span class="kw">:</span><span class="at"> Publish to Blogger</span></span>
+<span id="cb1-2"><a href="#cb1-2" aria-hidden="true" tabindex="-1"></a><span class="fu">on</span><span class="kw">:</span></span>
+<span id="cb1-3"><a href="#cb1-3" aria-hidden="true" tabindex="-1"></a><span class="at">  </span><span class="fu">push</span><span class="kw">:</span></span>
+<span id="cb1-4"><a href="#cb1-4" aria-hidden="true" tabindex="-1"></a><span class="at">    </span><span class="fu">branches</span><span class="kw">:</span><span class="at"> </span><span class="kw">[</span><span class="at"> main </span><span class="kw">]</span></span>
+<span id="cb1-5"><a href="#cb1-5" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb1-6"><a href="#cb1-6" aria-hidden="true" tabindex="-1"></a><span class="fu">jobs</span><span class="kw">:</span></span>
+<span id="cb1-7"><a href="#cb1-7" aria-hidden="true" tabindex="-1"></a><span class="at">  </span><span class="fu">build-and-deploy</span><span class="kw">:</span></span>
+<span id="cb1-8"><a href="#cb1-8" aria-hidden="true" tabindex="-1"></a><span class="at">    </span><span class="fu">runs-on</span><span class="kw">:</span><span class="at"> ubuntu-latest</span></span>
+<span id="cb1-9"><a href="#cb1-9" aria-hidden="true" tabindex="-1"></a><span class="at">    </span><span class="fu">steps</span><span class="kw">:</span></span>
+<span id="cb1-10"><a href="#cb1-10" aria-hidden="true" tabindex="-1"></a><span class="at">      </span><span class="kw">-</span><span class="at"> </span><span class="fu">name</span><span class="kw">:</span><span class="at"> Checkout code</span></span>
+<span id="cb1-11"><a href="#cb1-11" aria-hidden="true" tabindex="-1"></a><span class="at">        </span><span class="fu">uses</span><span class="kw">:</span><span class="at"> actions/checkout@v4</span></span>
+<span id="cb1-12"><a href="#cb1-12" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb1-13"><a href="#cb1-13" aria-hidden="true" tabindex="-1"></a><span class="at">      </span><span class="kw">-</span><span class="at"> </span><span class="fu">name</span><span class="kw">:</span><span class="at"> Set up R</span></span>
+<span id="cb1-14"><a href="#cb1-14" aria-hidden="true" tabindex="-1"></a><span class="at">        </span><span class="fu">uses</span><span class="kw">:</span><span class="at"> r-lib/actions/setup-r@v2</span></span>
+<span id="cb1-15"><a href="#cb1-15" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb1-16"><a href="#cb1-16" aria-hidden="true" tabindex="-1"></a><span class="at">      </span><span class="kw">-</span><span class="at"> </span><span class="fu">name</span><span class="kw">:</span><span class="at"> Install dependencies and render</span></span>
+<span id="cb1-17"><a href="#cb1-17" aria-hidden="true" tabindex="-1"></a><span class="fu">        run</span><span class="kw">: </span><span class="ch">|</span></span>
+<span id="cb1-18"><a href="#cb1-18" aria-hidden="true" tabindex="-1"></a>          Rscript -e &#39;install.packages(c(&quot;rmarkdown&quot;, &quot;ggplot2&quot;, &quot;knitr&quot;))&#39;</span>
+<span id="cb1-19"><a href="#cb1-19" aria-hidden="true" tabindex="-1"></a>          make base-rate.html</span>
+<span id="cb1-20"><a href="#cb1-20" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb1-21"><a href="#cb1-21" aria-hidden="true" tabindex="-1"></a><span class="at">      </span><span class="kw">-</span><span class="at"> </span><span class="fu">name</span><span class="kw">:</span><span class="at"> Publish to Blogger</span></span>
+<span id="cb1-22"><a href="#cb1-22" aria-hidden="true" tabindex="-1"></a><span class="at">        </span><span class="fu">uses</span><span class="kw">:</span><span class="at"> frankhjung/blogspot-publishing@v1</span></span>
+<span id="cb1-23"><a href="#cb1-23" aria-hidden="true" tabindex="-1"></a><span class="at">        </span><span class="fu">with</span><span class="kw">:</span></span>
+<span id="cb1-24"><a href="#cb1-24" aria-hidden="true" tabindex="-1"></a><span class="at">          </span><span class="fu">title</span><span class="kw">:</span><span class="at"> </span><span class="st">&quot;Base Rate Fallacy Explained&quot;</span></span>
+<span id="cb1-25"><a href="#cb1-25" aria-hidden="true" tabindex="-1"></a><span class="at">          </span><span class="fu">source-file</span><span class="kw">:</span><span class="at"> </span><span class="st">&quot;public/index.html&quot;</span></span>
+<span id="cb1-26"><a href="#cb1-26" aria-hidden="true" tabindex="-1"></a><span class="at">          </span><span class="fu">blog-id</span><span class="kw">:</span><span class="at"> ${{ secrets.BLOGGER_BLOG_ID }}</span></span>
+<span id="cb1-27"><a href="#cb1-27" aria-hidden="true" tabindex="-1"></a><span class="at">          </span><span class="fu">client-id</span><span class="kw">:</span><span class="at"> ${{ secrets.BLOGGER_CLIENT_ID }}</span></span>
+<span id="cb1-28"><a href="#cb1-28" aria-hidden="true" tabindex="-1"></a><span class="at">          </span><span class="fu">client-secret</span><span class="kw">:</span><span class="at"> ${{ secrets.BLOGGER_CLIENT_SECRET }}</span></span>
+<span id="cb1-29"><a href="#cb1-29" aria-hidden="true" tabindex="-1"></a><span class="at">          </span><span class="fu">refresh-token</span><span class="kw">:</span><span class="at"> ${{ secrets.BLOGGER_REFRESH_TOKEN }}</span></span>
+<span id="cb1-30"><a href="#cb1-30" aria-hidden="true" tabindex="-1"></a><span class="at">          </span><span class="fu">labels</span><span class="kw">:</span><span class="at"> </span><span class="st">&quot;statistics, r-programming, data-science&quot;</span></span></code></pre></div>
 <p>This configuration mirrors the logic of deploying to GitHub Pages but
 redirects the final, styled output to the Blogger platform, bridging the
 gap between sophisticated data analysis and public outreach.</p>
+<h2 id="7-handling-format-constraints">7. Handling Format
+Constraints</h2>
+<p>The Blogger API expects post content as HTML, even if you prefer
+writing in Markdown (as you would for a wiki or documentation site). The
+compromise is a simple build step that converts your source into a
+single HTML file.</p>
+<p>In practice, that usually looks like one of these:</p>
+<ul>
+<li>Markdown → HTML via Pandoc.</li>
+<li>R Markdown → HTML via <code>rmarkdown</code>.</li>
+</ul>
+<p>The output HTML becomes the workflow artefact you pass as
+<code>source-file</code> (for example,
+<code>public/index.html</code>).</p>
 <h2 id="conclusion-the-future-of-your-technical-blog">Conclusion: The
 Future of Your Technical Blog</h2>
-<p>By migrating your workflow from manual uploads to a sophisticated
-CI/CD pipeline, you treat your intellectual output with the same respect
-as your codebase. Automation removes the friction of publishing,
-ensuring that your insights move from your editor to your audience with
-maximum security and minimal toil.</p>
-<h3 id="handling-format-constraints">Handling Format Constraints</h3>
-<p>The limitation with posting to Blogger is that it requires posts to
-be in HTML format. You may prefer Markdown like the pages on your wiki
-or documentation site. This approach offers a compromise: using Pandoc
-or R Markdown allows you to write in Markdown and convert to HTML as
-part of your build process.</p>
+<p>Treating Blogger as a deployment target lets you apply the same
+engineering discipline to writing that you already apply to software:
+version-controlled content, repeatable builds, and automated
+publishing.</p>
+<p>Once the pipeline is in place, publishing becomes routine: write in
+the format you like, render to HTML, and let GitHub Actions update the
+existing post via the API.</p>
 <h2 id="more-information">More Information</h2>
 <ul>
 <li><a href="https://developers.google.com/blogger/docs/3.0/reference/posts">Blogger
@@ -434,10 +442,10 @@ Actions</a></li>
 <li><a href="https://www.markdownguide.org/">Markdown guide</a></li>
 <li><a href="https://pandoc.org/">Pandoc</a></li>
 <li>Example repository: <a href="https://github.com/frankhjung/article-base-rate">article-base-rate</a></li>
-<li>Example repository: <a href="https://github.com/frankhjung/article-publish-to-blogspot">article-publish-to-blogspot</a>
-this blog post uses this repository as its source</li>
+<li>Example repository: <a href="https://github.com/frankhjung/article-publish-to-blogspot">article-publish-to-blogspot</a>.
+This post uses this repository as its source.</li>
 <li>GitHub Publish to Blogger Action: <a href="https://github.com/frankhjung/blogspot-publishing">GitHub Actions
-for Blogger</a> used to publish posts to Blogger</li>
+for Blogger</a>. Used to publish posts to Blogger.</li>
 <li><a href="https://rmarkdown.rstudio.com/">R Markdown</a></li>
 </ul>
 </body>
