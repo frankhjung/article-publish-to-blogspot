@@ -7,6 +7,7 @@ on:
       - main
 
 permissions:
+  contents: read
   pages: write
   id-token: write
 
@@ -37,12 +38,14 @@ jobs:
         uses: actions/deploy-pages@v4
 
       - name: publish to blog
-        uses: frankhjung/blogspot-publishing@v1
+        if: success()
+        uses: docker://ghcr.io/frankhjung/blogspot-publishing:v1
         with:
-          source-file: "public/index.html"
-          title: ${{ env.ARTICLE_TITLE }}
-          labels: ${{ env.LABELS }}
-          blog-id: ${{ secrets.BLOGGER_BLOG_ID }}
-          client-id: ${{ secrets.BLOGGER_CLIENT_ID }}
-          client-secret: ${{ secrets.BLOGGER_CLIENT_SECRET }}
-          refresh-token: ${{ secrets.BLOGGER_REFRESH_TOKEN }}
+          args: >-
+            --source-file "public/index.html"
+            --title "${{ env.ARTICLE_TITLE }}"
+            --labels "${{ env.LABELS }}"
+            --blog-id "${{ secrets.BLOGGER_BLOG_ID }}"
+            --client-id "${{ secrets.BLOGGER_CLIENT_ID }}"
+            --client-secret "${{ secrets.BLOGGER_CLIENT_SECRET }}"
+            --refresh-token "${{ secrets.BLOGGER_REFRESH_TOKEN }}"

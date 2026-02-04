@@ -140,8 +140,12 @@ on:
     branches: [ main ]
 
 jobs:
-  build-and-deploy:
+  build:
+    name: publish article to pages
     runs-on: ubuntu-latest
+    env:
+      ARTICLE_TITLE: "From Code to Content: Automating Your Blogger Workflow with GitHub"
+      LABELS: "statistics, data science"
     steps:
       - name: Checkout code
         uses: actions/checkout@v4
@@ -152,18 +156,20 @@ jobs:
       - name: Install dependencies and render
         run: |
           Rscript -e 'install.packages(c("rmarkdown", "ggplot2", "knitr"))'
-          make base-rate.html
+          make index.html
 
-      - name: Publish to Blogger
-        uses: frankhjung/blogspot-publishing@v1
+      - name: publish to blog
+        if: success()
+        uses: docker://ghcr.io/frankhjung/blogspot-publishing:v1
         with:
-          title: "Base Rate Fallacy Explained"
-          source-file: "public/index.html"
-          blog-id: ${{ secrets.BLOGGER_BLOG_ID }}
-          client-id: ${{ secrets.BLOGGER_CLIENT_ID }}
-          client-secret: ${{ secrets.BLOGGER_CLIENT_SECRET }}
-          refresh-token: ${{ secrets.BLOGGER_REFRESH_TOKEN }}
-          labels: "statistics, r-programming, data-science"
+          args: >-
+            --source-file "index.html"
+            --title "${{ env.ARTICLE_TITLE }}"
+            --labels "${{ env.LABELS }}"
+            --blog-id "${{ secrets.BLOGGER_BLOG_ID }}"
+            --client-id "${{ secrets.BLOGGER_CLIENT_ID }}"
+            --client-secret "${{ secrets.BLOGGER_CLIENT_SECRET }}"
+            --refresh-token "${{ secrets.BLOGGER_REFRESH_TOKEN }}"
 ```
 
 This configuration mirrors the logic of deploying to GitHub Pages but redirects
@@ -211,3 +217,7 @@ the API.
   [GitHub Actions for Blogger](https://github.com/frankhjung/blogspot-publishing).
   Used to publish posts to Blogger.
 * [R Markdown](https://rmarkdown.rstudio.com/)
+
+## [MIT License](LICENSE)
+
+© Frank H Jung 2026
