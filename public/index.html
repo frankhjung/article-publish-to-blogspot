@@ -271,7 +271,7 @@ is established in the Google Cloud Console by enabling OAuth 2.0.
 Setting up OAuth 2.0 involves a one-time configuration investment that
 yields long-term efficiency gains.</p>
 <p>For a detailed guide on setting up OAuth 2.0 and generating your
-refresh token see <a href="https://github.com/frankhjung/blogspot-publishing/blob/main/docs/authentication_setup.md">Google
+refresh token see <a href="https://github.com/frankhjung/docker-blogger/blob/main/docs/authentication_setup.md">Google
 Blogger API Authentication Setup</a>.</p>
 <p>You must explicitly search for and enable the Blogger API within your
 project.</p>
@@ -328,9 +328,8 @@ into the runner environment only during execution.</p>
 <h2 id="4-the-anatomy-of-an-automated-post">4. The Anatomy of an
 Automated Post</h2>
 <p>The heavy lifting of the API interaction is managed by the
-<code>frankhjung/blogspot-publishing@v1</code> GitHub Action. This
-utility expects a specific set of inputs to govern how your content is
-delivered:</p>
+<code>frankhjung/blogger@v1</code> GitHub Action. This utility expects a
+specific set of inputs to govern how your content is delivered:</p>
 <ul>
 <li><code>title</code>: The headline of your post.</li>
 <li><code>source-file</code>: The path to the rendered HTML
@@ -351,11 +350,11 @@ the Duplication Headache</h2>
 traditional manual workflow, fixing a typo means hunting through a
 dashboard. In an automated system without idempotency, re-running a
 pipeline would simply create a duplicate post.</p>
-<p>The blogspot-publishing utility avoids this by using the post title
-as a unique identifier. If a post with the same title already exists, it
-updates the existing post (content only) instead of creating a
-duplicate. Include the title as an environment variable in your GitHub
-pipeline. If you change the title, then a new post will be created.</p>
+<p>The blogger utility avoids this by using the post title as a unique
+identifier. If a post with the same title already exists, it updates the
+existing post (content only) instead of creating a duplicate. Include
+the title as an environment variable in your GitHub pipeline. If you
+change the title, then a new post will be created.</p>
 <p>This supports a truly iterative writing process: push to
 <code>main</code>, and the Action will find the existing post and update
 its content.</p>
@@ -401,7 +400,7 @@ and deployment stages into a single, cohesive CI/CD pipeline:</p>
 <span id="cb1-24"><a href="#cb1-24" aria-hidden="true" tabindex="-1"></a></span>
 <span id="cb1-25"><a href="#cb1-25" aria-hidden="true" tabindex="-1"></a><span class="at">      </span><span class="kw">-</span><span class="at"> </span><span class="fu">name</span><span class="kw">:</span><span class="at"> publish to blog</span></span>
 <span id="cb1-26"><a href="#cb1-26" aria-hidden="true" tabindex="-1"></a><span class="at">        </span><span class="fu">if</span><span class="kw">:</span><span class="at"> success()</span></span>
-<span id="cb1-27"><a href="#cb1-27" aria-hidden="true" tabindex="-1"></a><span class="at">        </span><span class="fu">uses</span><span class="kw">:</span><span class="at"> docker://ghcr.io/frankhjung/blogspot-publishing:v1</span></span>
+<span id="cb1-27"><a href="#cb1-27" aria-hidden="true" tabindex="-1"></a><span class="at">        </span><span class="fu">uses</span><span class="kw">:</span><span class="at"> docker://ghcr.io/frankhjung/blogger:v1</span></span>
 <span id="cb1-28"><a href="#cb1-28" aria-hidden="true" tabindex="-1"></a><span class="at">        </span><span class="fu">with</span><span class="kw">:</span></span>
 <span id="cb1-29"><a href="#cb1-29" aria-hidden="true" tabindex="-1"></a><span class="fu">          args</span><span class="kw">: </span><span class="ch">&gt;-</span></span>
 <span id="cb1-30"><a href="#cb1-30" aria-hidden="true" tabindex="-1"></a>            --source-file &quot;index.html&quot;</span>
@@ -450,8 +449,8 @@ Actions</a></li>
 <li>Example repository: <a href="https://github.com/frankhjung/article-base-rate">article-base-rate</a></li>
 <li>Example repository: <a href="https://github.com/frankhjung/article-publish-to-blogspot">article-publish-to-blogspot</a>.
 This post uses this repository as its source.</li>
-<li>GitHub Publish to Blogger Action: <a href="https://github.com/frankhjung/blogspot-publishing">GitHub Actions
-for Blogger</a>. Used to publish posts to Blogger.</li>
+<li>GitHub Publish to Blogger Action: <a href="https://github.com/frankhjung/docker-blogger">GitHub Actions for
+Blogger</a>. Used to publish posts to Blogger.</li>
 <li><a href="https://rmarkdown.rstudio.com/">R Markdown</a></li>
 </ul>
 <h2 id="mit-license"><a href="LICENSE">MIT License</a></h2>

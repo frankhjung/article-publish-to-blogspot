@@ -45,7 +45,7 @@ efficiency gains.
 
 For a detailed guide on setting up OAuth 2.0 and generating your refresh token
 see
-[Google Blogger API Authentication Setup](https://github.com/frankhjung/blogspot-publishing/blob/main/docs/authentication_setup.md).
+[Google Blogger API Authentication Setup](https://github.com/frankhjung/docker-blogger/blob/main/docs/authentication_setup.md).
 
 You must explicitly search for and enable the Blogger API within your project.
 
@@ -83,8 +83,8 @@ execution.
 ## 4. The Anatomy of an Automated Post
 
 The heavy lifting of the API interaction is managed by the
-`frankhjung/blogspot-publishing@v1` GitHub Action. This utility expects a
-specific set of inputs to govern how your content is delivered:
+`frankhjung/blogger@v1` GitHub Action. This utility expects a specific set of
+inputs to govern how your content is delivered:
 
 * `title`: The headline of your post.
 * `source-file`: The path to the rendered HTML content.
@@ -106,11 +106,11 @@ workflow, fixing a typo means hunting through a dashboard. In an automated
 system without idempotency, re-running a pipeline would simply create a
 duplicate post.
 
-The blogspot-publishing utility avoids this by using the post title as a unique
-identifier. If a post with the same title already exists, it updates the
-existing post (content only) instead of creating a duplicate. Include the title
-as an environment variable in your GitHub pipeline. If you change the title,
-then a new post will be created.
+The blogger utility avoids this by using the post title as a unique identifier.
+If a post with the same title already exists, it updates the existing post
+(content only) instead of creating a duplicate. Include the title as an
+environment variable in your GitHub pipeline. If you change the title, then a
+new post will be created.
 
 This supports a truly iterative writing process: push to `main`, and the Action
 will find the existing post and update its content.
@@ -160,7 +160,7 @@ jobs:
 
       - name: publish to blog
         if: success()
-        uses: docker://ghcr.io/frankhjung/blogspot-publishing:v1
+        uses: docker://ghcr.io/frankhjung/blogger:v1
         with:
           args: >-
             --source-file "index.html"
@@ -214,7 +214,7 @@ the API.
   [article-publish-to-blogspot](https://github.com/frankhjung/article-publish-to-blogspot).
   This post uses this repository as its source.
 * GitHub Publish to Blogger Action:
-  [GitHub Actions for Blogger](https://github.com/frankhjung/blogspot-publishing).
+  [GitHub Actions for Blogger](https://github.com/frankhjung/docker-blogger).
   Used to publish posts to Blogger.
 * [R Markdown](https://rmarkdown.rstudio.com/)
 

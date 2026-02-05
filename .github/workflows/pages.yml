@@ -39,7 +39,7 @@ jobs:
 
       - name: publish to blog
         if: success()
-        uses: docker://ghcr.io/frankhjung/blogspot-publishing:v1
+        uses: docker://ghcr.io/frankhjung/blogger:v1
         with:
           args: >-
             --source-file "public/index.html"
