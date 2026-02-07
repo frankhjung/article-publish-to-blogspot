@@ -17,7 +17,7 @@ jobs:
     runs-on: ubuntu-latest
     env:
       ARTICLE_TITLE: "From Code to Content: Automating Your Blogger Workflow with GitHub"
-      LABELS: "statistics, data science"
+      LABELS: "git, blogger, github, github-actions, pandoc, rmarkdown"
     environment:
       name: github-pages
       url: ${{ steps.deployment.outputs.page_url }}

@@ -1,24 +1,24 @@
 ---
 title: "From Code to Content: Automating Your Blogger Workflow with GitHub"
 author: "[Frank Jung](https://www.linkedin.com/in/frankjung/)"
-date: 2026-02-03
+date: 2026-02-07
 ---
 
-![](images/banner.png)
+![© Frank H Jung 2026](images/banner.png)
 
-For the modern developer, the desire to share technical insights is often
+*For the modern developer, the desire to share technical insights is often
 hindered by the "toil" of the publishing process. We live in our code editors
 and terminal sessions, yet sharing those insights on platforms like
 [Blogger](https://www.blogger.com/) traditionally requires a regression to
 manual labour: copy-pasting HTML, wrestling with web-based WYSIWYG editors, and
 manually managing assets. This discourages regular contribution, often resulting
-in stale repositories and abandoned drafts.
+in stale repositories and abandoned drafts.*
 
-By adopting a "Blogging as Code" approach, you can replace manual copy-pasting
+*By adopting a "Blogging as Code" approach, you can replace manual copy-pasting
 with automated CI/CD pipeline management. By leveraging the
 [Blogger REST API v3](https://developers.google.com/blogger/docs/3.0/reference/posts)
 and [GitHub Actions](https://github.com/features/actions), you can treat your
-blog with the same engineering rigour as your production software.
+blog with the same engineering rigour as your production software.*
 
 ## 1. The API as Your Deployment Interface
 
@@ -29,12 +29,12 @@ entirely, enabling programmatic creation and updates of posts.
 Treating your blog as a deployment target via an API offers three critical
 advantages for the DevOps-minded writer:
 
-* Version Control: Your content resides in a Git repository, providing a single
-  source of truth and a complete audit trail of changes.
-* Consistency: Automation ensures that metadata, labels, and formatting are
+* **Version Control:** Your content resides in a Git repository, providing a
+  single source of truth and a complete audit trail of changes.
+* **Consistency:** Automation ensures that metadata, labels, and formatting are
   applied uniformly, eliminating inconsistent posts.
-* GitOps for Content: Merging a pull request to your `main` branch becomes the
-  trigger for your live content updates.
+* **GitOps for Content:** Merging a pull request to your `main` branch becomes
+  the trigger for your live content updates.
 
 ## 2. Security Starts in the Google Cloud Console
 
@@ -69,10 +69,10 @@ pipeline.
 
 | Parameter | Description |
 | --------- | ----------- |
+| `BLOG_ID` | The unique identifier for your specific destination blog. |
 | `CLIENT_ID` | The Google OAuth Client ID derived from the Cloud Console. |
 | `CLIENT_SECRET` | The Google OAuth Client Secret used for authorization. |
 | `REFRESH_TOKEN` | The secure token that allows for long-term, non-interactive API access. |
-| `BLOG_ID` | The unique identifier for your specific destination blog. |
 
 **[!WARNING]** Security best practice: It is essential that these four values
 are stored as GitHub Secrets. Hardcoding these credentials in your YAML or
@@ -86,13 +86,23 @@ The heavy lifting of the API interaction is managed by the
 `frankhjung/blogger@v1` GitHub Action. This utility expects a specific set of
 inputs to govern how your content is delivered:
 
-* `title`: The headline of your post.
 * `source-file`: The path to the rendered HTML content.
-* `blog-id`: Your destination identifier.
+* `title`: The headline of your post.
 * `labels`: A comma-separated list of tags (e.g., "tech, devops, tutorial") to
   organise your content.
+* `blog-id`: Your destination identifier.
 * `client-id` / `client-secret` / `refresh-token`: Your secure authentication
   suite.
+
+The action also provides several advanced features to streamline the process:
+
+* **Embedded Assets**: Local images referenced in your HTML are automatically
+  encoded as Base64 data URIs, ensuring they are correctly displayed without
+  requiring separate hosting.
+* **Smart Extraction**: If a full HTML document (with `<html>` and `<body>`
+  tags) is provided, the action intelligently extracts only the body content and
+  internal CSS styles, ensuring it integrates perfectly with your blog's
+  template.
 
 The source-file input expects HTML. While the Blogger API consumes HTML, your
 source remains in the format you prefer—such as Markdown or R Markdown. This is
@@ -107,13 +117,13 @@ system without idempotency, re-running a pipeline would simply create a
 duplicate post.
 
 The blogger utility avoids this by using the post title as a unique identifier.
-If a post with the same title already exists, it updates the existing post
-(content only) instead of creating a duplicate. Include the title as an
-environment variable in your GitHub pipeline. If you change the title, then a
-new post will be created.
+If a **draft** post with the same title already exists, it updates the existing
+content and labels. Note that live or scheduled posts are not modified to
+prevent accidental overwrites. Include the title as an environment variable in
+your GitHub pipeline. If you change the title, then a new post will be created.
 
 This supports a truly iterative writing process: push to `main`, and the Action
-will find the existing post and update its content.
+will find the existing draft post and update its content.
 
 **Note:**
 
@@ -144,28 +154,22 @@ jobs:
     name: publish article to pages
     runs-on: ubuntu-latest
     env:
-      ARTICLE_TITLE: "From Code to Content: Automating Your Blogger Workflow with GitHub"
-      LABELS: "statistics, data science"
+      ARTICLE_TITLE: "your title here"
+      LABELS: "label_1, label_2"
     steps:
       - name: Checkout code
         uses: actions/checkout@v4
 
-      - name: Set up R
-        uses: r-lib/actions/setup-r@v2
-
-      - name: Install dependencies and render
-        run: |
-          Rscript -e 'install.packages(c("rmarkdown", "ggplot2", "knitr"))'
-          make index.html
+      # ... tasks to render markdown to HTML ...
 
       - name: publish to blog
         if: success()
-        uses: docker://ghcr.io/frankhjung/blogger:v1
+        uses: docker://frankhjung/blogger:v1
         with:
           args: >-
-            --source-file "index.html"
-            --title "${{ env.ARTICLE_TITLE }}"
-            --labels "${{ env.LABELS }}"
+            --source-file "path/to/your/article.html"
+            --title "Your Title Here"
+            --labels "label_1, label_2"
             --blog-id "${{ secrets.BLOGGER_BLOG_ID }}"
             --client-id "${{ secrets.BLOGGER_CLIENT_ID }}"
             --client-secret "${{ secrets.BLOGGER_CLIENT_SECRET }}"
@@ -173,8 +177,7 @@ jobs:
 ```
 
 This configuration mirrors the logic of deploying to GitHub Pages but redirects
-the final, styled output to the Blogger platform, bridging the gap between
-sophisticated data analysis and public outreach.
+the final, styled output to the Blogger platform.
 
 ## 7. Handling Format Constraints
 
@@ -203,21 +206,15 @@ the API.
 ## More Information
 
 * [Blogger REST API v3](https://developers.google.com/blogger/docs/3.0/reference/posts)
+* Blogger Publishing Action:
+* Example repository:
+  [article-base-rate](https://github.com/frankhjung/article-base-rate)
+* Example repository:
+  [article-publish-to-blogspot](https://github.com/frankhjung/article-publish-to-blogspot)
+* [GitHub Actions for Blogspot](https://github.com/frankhjung/docker-blogger)
 * [Git](https://git-scm.com/)
 * [GitHub Actions](https://github.com/features/actions)
 * [GitHub](https://github.com/)
 * [Markdown guide](https://www.markdownguide.org/)
 * [Pandoc](https://pandoc.org/)
-* Example repository:
-  [article-base-rate](https://github.com/frankhjung/article-base-rate)
-* Example repository:
-  [article-publish-to-blogspot](https://github.com/frankhjung/article-publish-to-blogspot).
-  This post uses this repository as its source.
-* GitHub Publish to Blogger Action:
-  [GitHub Actions for Blogger](https://github.com/frankhjung/docker-blogger).
-  Used to publish posts to Blogger.
 * [R Markdown](https://rmarkdown.rstudio.com/)
-
-## [MIT License](LICENSE)
-
-© Frank H Jung 2026
