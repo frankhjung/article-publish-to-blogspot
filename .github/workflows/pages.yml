@@ -28,6 +28,11 @@ jobs:
         with:
           fetch-depth: 1
 
+      - name: build with pandoc
+        uses: docker://frankhjung/pandoc:3.1.11.1
+        with:
+          args: make
+
       - name: upload pages artifact
         uses: actions/upload-pages-artifact@v3
         with:

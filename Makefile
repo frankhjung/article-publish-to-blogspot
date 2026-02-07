@@ -12,7 +12,8 @@ default: $(PROJECT).html $(PROJECT).pdf
 	@mkdir -p public
 	@$(PANDOC) \
 		--from=gfm --to html5 \
-		--embed-resources --standalone --css files/article.css \
+		--embed-resources --standalone \
+		--css files/article.css \
 		--output public/$@ \
 		$<
 	@mv public/$@ public/index.html
@@ -22,7 +23,7 @@ default: $(PROJECT).html $(PROJECT).pdf
 	@$(PANDOC) \
 		--include-in-header files/preamble.tex \
 		--from=markdown --pdf-engine=xelatex \
-		--css article.css \
+		--css files/article.css \
 		--toc \
 		--output public/$@ \
 		$<
